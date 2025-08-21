@@ -1,0 +1,356 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #000000;
+    color: #ffb000;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    animation: startup-flicker 2s;
+}
+
+/* CRT screen container with curvature */
+body::after {
+    content: "";
+    position: fixed;
+    top: -5%;
+    left: -5%;
+    width: 110%;
+    height: 110%;
+    border-radius: 50% / 10%;
+    box-shadow: 
+        inset 0 0 120px rgba(0, 0, 0, 0.9),
+        inset 0 0 80px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Scanline effect */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 176, 0, 0.03) 2px,
+            rgba(255, 176, 0, 0.03) 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.3) 2px,
+            rgba(0, 0, 0, 0.3) 4px
+        );
+    pointer-events: none;
+    z-index: 1;
+    animation: scanlines 8s linear infinite;
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 0 10px, 0 0; }
+}
+
+/* Phosphor glow overlay */
+.phosphor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at center, rgba(255, 176, 0, 0.15) 0%, rgba(0, 0, 0, 0.9) 60%),
+        radial-gradient(circle at 20% 80%, rgba(255, 136, 0, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 200, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+    animation: phosphor-pulse 4s ease-in-out infinite;
+}
+
+@keyframes phosphor-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* Static noise overlay */
+.title-container::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-radial-gradient(circle at 0 0, transparent 0, rgba(255, 176, 0, 0.02) 1px, transparent 2px, transparent 3px);
+    background-size: 3px 3px;
+    opacity: 0.5;
+    animation: noise 0.2s steps(10) infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+
+@keyframes noise {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-1%, -1%); }
+    20% { transform: translate(1%, 1%); }
+    30% { transform: translate(-1%, 1%); }
+    40% { transform: translate(1%, -1%); }
+    50% { transform: translate(0.5%, 0.5%); }
+    60% { transform: translate(-0.5%, -0.5%); }
+    70% { transform: translate(0.5%, -0.5%); }
+    80% { transform: translate(-0.5%, 0.5%); }
+    90% { transform: translate(0, 0); }
+}
+
+.title-container {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transform: perspective(500px) rotateX(0.5deg);
+}
+
+.title {
+    color: #ffb000;
+    font-size: 14px;
+    line-height: 1.2;
+    text-shadow: 
+        0 0 5px rgba(255, 176, 0, 0.8),
+        0 0 10px rgba(255, 136, 0, 0.6),
+        0 0 20px rgba(255, 176, 0, 0.4),
+        0 0 40px rgba(255, 176, 0, 0.2),
+        2px 2px 2px rgba(255, 0, 0, 0.2),
+        -2px -2px 2px rgba(0, 255, 255, 0.2);
+    animation: text-flicker 0.05s infinite, chromatic 10s ease-in-out infinite;
+    position: relative;
+    filter: contrast(1.2) brightness(1.1);
+}
+
+/* Chromatic aberration effect */
+@keyframes chromatic {
+    0%, 100% {
+        text-shadow: 
+            0 0 5px rgba(255, 176, 0, 0.8),
+            0 0 10px rgba(255, 136, 0, 0.6),
+            0 0 20px rgba(255, 176, 0, 0.4),
+            0 0 40px rgba(255, 176, 0, 0.2),
+            1px 1px 0px rgba(255, 0, 0, 0.3),
+            -1px -1px 0px rgba(0, 255, 255, 0.3);
+    }
+    50% {
+        text-shadow: 
+            0 0 5px rgba(255, 176, 0, 0.8),
+            0 0 10px rgba(255, 136, 0, 0.6),
+            0 0 20px rgba(255, 176, 0, 0.4),
+            0 0 40px rgba(255, 176, 0, 0.2),
+            2px 2px 0px rgba(255, 0, 0, 0.2),
+            -2px -2px 0px rgba(0, 255, 255, 0.2);
+    }
+}
+
+/* Enhanced flicker effect */
+@keyframes text-flicker {
+    0%, 100% { 
+        opacity: 1;
+        filter: brightness(1.1) contrast(1.2);
+    }
+    95% { 
+        opacity: 0.98;
+        filter: brightness(1.15) contrast(1.25) saturate(1.1);
+    }
+    96% {
+        opacity: 0.94;
+        filter: brightness(0.95) contrast(1.1);
+    }
+}
+
+/* Startup flicker animation */
+@keyframes startup-flicker {
+    0% {
+        opacity: 0;
+        filter: brightness(0) contrast(10);
+    }
+    5% {
+        opacity: 0.2;
+        filter: brightness(20) contrast(100) blur(5px);
+    }
+    10% {
+        opacity: 1;
+        filter: brightness(2) contrast(5) blur(2px);
+    }
+    15% {
+        opacity: 0.2;
+        filter: brightness(0.5) contrast(2);
+    }
+    20% {
+        opacity: 0;
+        filter: brightness(0) contrast(1);
+    }
+    25% {
+        opacity: 0.8;
+        filter: brightness(1.8) contrast(2) blur(1px);
+    }
+    30% {
+        opacity: 1;
+        filter: brightness(1.5) contrast(1.5);
+    }
+    35% {
+        opacity: 0.5;
+        filter: brightness(0.8) contrast(1.2);
+    }
+    40% {
+        opacity: 1;
+        filter: brightness(1.2) contrast(1.2);
+    }
+    50% {
+        opacity: 0.9;
+        filter: brightness(1) contrast(1.1);
+    }
+    60% {
+        opacity: 1;
+        filter: brightness(1.1) contrast(1.15);
+    }
+    70% {
+        opacity: 0.95;
+        filter: brightness(0.95) contrast(1.1);
+    }
+    80%, 100% {
+        opacity: 1;
+        filter: brightness(1.1) contrast(1.2);
+    }
+}
+
+/* Horizontal scan line */
+.title::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.02) 48%,
+        rgba(255, 176, 0, 0.05) 50%,
+        rgba(255, 255, 255, 0.02) 52%,
+        transparent 100%
+    );
+    pointer-events: none;
+    animation: scan-line 6s linear infinite;
+}
+
+@keyframes scan-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+/* Glow around the title with distortion */
+.title::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    right: -30px;
+    bottom: -30px;
+    background: 
+        radial-gradient(ellipse at center, rgba(255, 176, 0, 0.15) 0%, transparent 70%),
+        radial-gradient(circle at 30% 30%, rgba(255, 100, 0, 0.05) 0%, transparent 40%);
+    z-index: -1;
+    animation: glow-pulse 3s ease-in-out infinite, distort 5s ease-in-out infinite;
+    filter: blur(2px);
+}
+
+@keyframes glow-pulse {
+    0%, 100% { 
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes distort {
+    0%, 100% { transform: scale(1, 1); }
+    25% { transform: scale(1.01, 0.99); }
+    50% { transform: scale(0.99, 1.01); }
+    75% { transform: scale(1.005, 0.995); }
+}
+
+/* Phosphor trail effect */
+.title {
+    position: relative;
+}
+
+.title span {
+    display: inline-block;
+    animation: phosphor-decay 0.5s ease-out;
+}
+
+@keyframes phosphor-decay {
+    0% {
+        filter: brightness(2) blur(1px);
+        text-shadow: 
+            0 0 10px rgba(255, 176, 0, 1),
+            0 0 20px rgba(255, 136, 0, 0.8),
+            0 0 30px rgba(255, 176, 0, 0.6);
+    }
+    100% {
+        filter: brightness(1) blur(0);
+        text-shadow: 
+            0 0 5px rgba(255, 176, 0, 0.8),
+            0 0 10px rgba(255, 136, 0, 0.6),
+            0 0 20px rgba(255, 176, 0, 0.4);
+    }
+}
+
+/* Bad signal effect */
+@keyframes bad-signal {
+    0%, 100% { 
+        transform: translateX(0) scaleX(1);
+        filter: brightness(1);
+    }
+    5% {
+        transform: translateX(2px) scaleX(1.001);
+        filter: brightness(1.1) hue-rotate(2deg);
+    }
+    10% {
+        transform: translateX(-1px) scaleX(0.999);
+        filter: brightness(0.9) hue-rotate(-2deg);
+    }
+}
+
+.title {
+    animation: 
+        text-flicker 0.05s infinite,
+        chromatic 10s ease-in-out infinite,
+        bad-signal 15s ease-in-out infinite;
+}
+
+@media (max-width: 850px) {
+    .title {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .title {
+        font-size: 7px;
+    }
+}
