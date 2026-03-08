@@ -95,7 +95,7 @@ class AlienTerminal {
         // Menu options with links
         await this.createMenuOption('GITHUB', 'https://github.com/typedcypher');
         await this.createMenuOption('X', 'https://x.com/typedcypher');
-        await this.createMenuOption('NOSTR', 'https://primal.net/p/nprofile1qqs9jqukuzgskr6vtcu5l6ltgj0wfehq2hx97a3d4ydy0hhr0hggtuqdq6jdq');
+        await this.createMenuOption('NOSTR', 'https://njump.me/typedcypher.com');
         
         await this.addLine('', '', false);
         await this.sleep(500);
@@ -221,7 +221,12 @@ class AlienTerminal {
         this.createBurnInText('> ' + text, 0, relativeY, true);
 
         // Track menu option for keyboard navigation
+        const menuIndex = this.menuOptions.length;
         this.menuOptions.push(option);
+
+        option.addEventListener('mouseenter', () => {
+            this.selectMenuOption(menuIndex);
+        });
 
         // Move cursor after option
         this.output.appendChild(this.cursor);
