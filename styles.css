@@ -350,16 +350,29 @@ body::before {
         -0.5px 0 0 rgba(0, 255, 255, 0.2);
 }
 
-.menu-option:hover,
 .menu-option-selected {
-    color: #1aff88;
-    text-shadow: 0 0 20px rgba(26, 255, 136, 1);
+    color: #0a0a0a;
+    background: #0ccc68;
     padding-left: 30px;
+    text-shadow: none;
+    filter: none;
 }
 
-.menu-option:hover::before,
+.menu-option-selected a,
+.menu-option-selected a .char,
+.menu-option-selected .char {
+    color: #0a0a0a !important;
+    text-shadow: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
 .menu-option-selected::before {
-    animation: blink 0.5s infinite;
+    content: ">>";
+    color: #0a0a0a;
+    text-shadow: none;
+    animation: none;
 }
 
 /* Blinking cursor */
