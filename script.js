@@ -5,6 +5,8 @@ class AlienTerminal {
         this.cursor = document.querySelector('.cursor');
         this.typeSpeed = 50;
         this.lineDelay = 800;
+        this.menuOptions = [];
+        this.selectedIndex = -1;
         this.bootSequence();
     }
 
@@ -93,6 +95,7 @@ class AlienTerminal {
         // Menu options with links
         await this.createMenuOption('GITHUB', 'https://github.com/typedcypher');
         await this.createMenuOption('X', 'https://x.com/typedcypher');
+        await this.createMenuOption('NOSTR', 'https://primal.net/p/nprofile1qqs9jqukuzgskr6vtcu5l6ltgj0wfehq2hx97a3d4ydy0hhr0hggtuqdq6jdq');
         
         await this.addLine('', '', false);
         await this.sleep(500);
@@ -216,14 +219,50 @@ class AlienTerminal {
         
         // Create permanent burn-in for menu items
         this.createBurnInText('> ' + text, 0, relativeY, true);
-        
+
+        // Track menu option for keyboard navigation
+        this.menuOptions.push(option);
+
         // Move cursor after option
         this.output.appendChild(this.cursor);
-        
+
         await this.sleep(300);
     }
 
+    selectMenuOption(index) {
+        if (this.menuOptions.length === 0) return;
+
+        this.menuOptions.forEach(opt => opt.classList.remove('menu-option-selected'));
+
+        this.selectedIndex = ((index % this.menuOptions.length) + this.menuOptions.length) % this.menuOptions.length;
+        this.menuOptions[this.selectedIndex].classList.add('menu-option-selected');
+    }
+
+    openSelectedMenuOption() {
+        if (this.selectedIndex < 0 || this.selectedIndex >= this.menuOptions.length) return;
+
+        const anchor = this.menuOptions[this.selectedIndex].querySelector('a');
+        if (anchor) {
+            window.open(anchor.href, '_blank', 'noopener,noreferrer');
+        }
+    }
+
     addInteractiveEffects() {
+        // Vi-style keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (this.menuOptions.length === 0) return;
+
+            if (e.key === 'j' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.selectMenuOption(this.selectedIndex + 1);
+            } else if (e.key === 'k' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.selectMenuOption(this.selectedIndex - 1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                this.openSelectedMenuOption();
+            }
+        });
         const screen = document.querySelector('.terminal-screen');
         const container = document.querySelector('.terminal-container');
         
