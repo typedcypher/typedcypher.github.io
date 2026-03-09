@@ -135,12 +135,12 @@ class AlienTerminal {
             tabEl.textContent = tab.label;
             tabEl.addEventListener('mouseenter', () => {
                 this.activeTab = index;
-                this.activeItem = 0;
+                this.activeItem = this.firstSelectableItem(this.tabs[index]);
                 this.renderMenu();
             });
             tabEl.addEventListener('click', () => {
                 this.activeTab = index;
-                this.activeItem = 0;
+                this.activeItem = this.firstSelectableItem(this.tabs[index]);
                 this.renderMenu();
             });
             tabBar.appendChild(tabEl);
@@ -183,27 +183,36 @@ class AlienTerminal {
         const currentTab = this.tabs[this.activeTab];
         if (!currentTab) return;
 
+        const hasSelectableItems = currentTab.items.some(item => item.link);
+
         currentTab.items.forEach((item, index) => {
             const row = document.createElement('div');
             row.className = 'setup-item';
-            if (index === this.activeItem) row.classList.add('setup-item-active');
-            if (item.link) row.classList.add('setup-item-link');
-            row.textContent = item.label;
+            if (item.link) {
+                row.classList.add('setup-item-link');
+                if (index === this.activeItem) row.classList.add('setup-item-active');
 
-            row.addEventListener('mouseenter', () => {
-                if (this.activeItem === index) return;
-                this.activeItem = index;
-                this.updateItemHighlight();
-            });
+                row.addEventListener('mouseenter', () => {
+                    if (this.activeItem === index) return;
+                    this.activeItem = index;
+                    this.updateItemHighlight();
+                });
 
-            row.addEventListener('click', () => {
-                if (item.link) {
+                row.addEventListener('click', () => {
                     window.open(item.link, '_blank', 'noopener,noreferrer');
-                }
-            });
+                });
+            } else {
+                row.classList.add('setup-item-static');
+            }
+            row.textContent = item.label;
 
             contentArea.appendChild(row);
         });
+    }
+
+    firstSelectableItem(tab) {
+        const index = tab.items.findIndex(item => item.link);
+        return index === -1 ? 0 : index;
     }
 
     updateItemHighlight() {
@@ -219,24 +228,30 @@ class AlienTerminal {
 
             const currentTab = this.tabs[this.activeTab];
 
+            const selectableIndices = currentTab.items
+                .map((item, i) => item.link ? i : -1)
+                .filter(i => i !== -1);
+
             if (e.key === 'l' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 this.activeTab = (this.activeTab + 1) % this.tabs.length;
-                this.activeItem = 0;
+                this.activeItem = this.firstSelectableItem(this.tabs[this.activeTab]);
                 this.renderMenu();
             } else if (e.key === 'h' || e.key === 'ArrowLeft') {
                 e.preventDefault();
                 this.activeTab = (this.activeTab - 1 + this.tabs.length) % this.tabs.length;
-                this.activeItem = 0;
+                this.activeItem = this.firstSelectableItem(this.tabs[this.activeTab]);
                 this.renderMenu();
-            } else if (e.key === 'j' || e.key === 'ArrowDown') {
+            } else if ((e.key === 'j' || e.key === 'ArrowDown') && selectableIndices.length > 0) {
                 e.preventDefault();
-                this.activeItem = (this.activeItem + 1) % currentTab.items.length;
-                this.renderMenu();
-            } else if (e.key === 'k' || e.key === 'ArrowUp') {
+                const pos = selectableIndices.indexOf(this.activeItem);
+                this.activeItem = selectableIndices[(pos + 1) % selectableIndices.length];
+                this.updateItemHighlight();
+            } else if ((e.key === 'k' || e.key === 'ArrowUp') && selectableIndices.length > 0) {
                 e.preventDefault();
-                this.activeItem = (this.activeItem - 1 + currentTab.items.length) % currentTab.items.length;
-                this.renderMenu();
+                const pos = selectableIndices.indexOf(this.activeItem);
+                this.activeItem = selectableIndices[(pos - 1 + selectableIndices.length) % selectableIndices.length];
+                this.updateItemHighlight();
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 const item = currentTab.items[this.activeItem];
