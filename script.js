@@ -11,9 +11,8 @@ class AlienTerminal {
                 label: 'GENERAL',
                 items: [
                     { label: 'Welcome to typedCypher' },
-                    { label: 'Status: ONLINE' },
-                    { label: 'System: MOS 6502' },
-                    { label: 'Memory: 16384 KB' },
+                    { label: 'Block Height: ...', id: 'block-height' },
+                    { label: 'Relay: ...', id: 'relay-status' },
                 ]
             },
             {
@@ -89,9 +88,9 @@ class AlienTerminal {
 
         await this.addLine('LOADING KERNEL MODULES...', '', false);
         await this.sleep(300);
-        await this.addLine('[OK] MEMORY CHECK: 16384 KB', '', false);
+        await this.addLine('[OK] BLOCK SYNC: READY', '', false);
         await this.sleep(200);
-        await this.addLine('[OK] CPU DETECTED: MOS 6502', '', false);
+        await this.addLine('[OK] RELAY CHECK: CONNECTING', '', false);
         await this.sleep(200);
         await this.addLine('[OK] INTERFACE: ACTIVE', '', false);
         await this.sleep(500);
@@ -166,6 +165,42 @@ class AlienTerminal {
 
         this.menuReady = true;
         this.renderMenu();
+        this.fetchLiveData();
+    }
+
+    async fetchLiveData() {
+        this.fetchBlockHeight();
+        this.fetchRelayStatus();
+    }
+
+    async fetchBlockHeight() {
+        try {
+            const response = await fetch('https://mempool.space/api/blocks/tip/height');
+            const height = await response.text();
+            this.updateGeneralItem('block-height', `Block Height: ${Number(height).toLocaleString()}`);
+        } catch {
+            this.updateGeneralItem('block-height', 'Block Height: unavailable');
+        }
+    }
+
+    async fetchRelayStatus() {
+        try {
+            const response = await fetch('https://relay.typedcypher.com/health');
+            const text = (await response.text()).trim();
+            const status = text === 'OK' ? 'ONLINE' : 'OFFLINE';
+            this.updateGeneralItem('relay-status', `Relay: ${status}`);
+        } catch {
+            this.updateGeneralItem('relay-status', 'Relay: OFFLINE');
+        }
+    }
+
+    updateGeneralItem(id, label) {
+        const tab = this.tabs[0];
+        const item = tab.items.find(i => i.id === id);
+        if (item) item.label = label;
+
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) el.textContent = label;
     }
 
     renderMenu() {
@@ -205,6 +240,7 @@ class AlienTerminal {
                 row.classList.add('setup-item-static');
             }
             row.textContent = item.label;
+            if (item.id) row.setAttribute('data-id', item.id);
 
             contentArea.appendChild(row);
         });
