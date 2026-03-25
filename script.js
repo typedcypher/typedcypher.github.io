@@ -186,8 +186,8 @@ class AlienTerminal {
     async fetchRelayStatus() {
         try {
             const response = await fetch('https://relay.typedcypher.com/health');
-            const data = await response.json();
-            const status = data.status === 'OK' ? 'ONLINE' : 'OFFLINE';
+            const text = (await response.text()).trim();
+            const status = text === 'OK' ? 'ONLINE' : 'OFFLINE';
             this.updateGeneralItem('relay-status', `Relay: ${status}`);
         } catch {
             this.updateGeneralItem('relay-status', 'Relay: OFFLINE');
